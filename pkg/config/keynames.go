@@ -14,63 +14,35 @@ import (
 // docs/keybindings/Custom_Keybindings.md as well
 
 var labelByKey = map[gocui.KeyName]string{
-	gocui.KeyF1:             "<f1>",
-	gocui.KeyF2:             "<f2>",
-	gocui.KeyF3:             "<f3>",
-	gocui.KeyF4:             "<f4>",
-	gocui.KeyF5:             "<f5>",
-	gocui.KeyF6:             "<f6>",
-	gocui.KeyF7:             "<f7>",
-	gocui.KeyF8:             "<f8>",
-	gocui.KeyF9:             "<f9>",
-	gocui.KeyF10:            "<f10>",
-	gocui.KeyF11:            "<f11>",
-	gocui.KeyF12:            "<f12>",
-	gocui.KeyInsert:         "<insert>",
-	gocui.KeyDelete:         "<delete>",
-	gocui.KeyHome:           "<home>",
-	gocui.KeyEnd:            "<end>",
-	gocui.KeyPgup:           "<pgup>",
-	gocui.KeyPgdn:           "<pgdown>",
-	gocui.KeyArrowUp:        "<up>",
-	gocui.KeyShiftArrowUp:   "<s-up>",
-	gocui.KeyArrowDown:      "<down>",
-	gocui.KeyShiftArrowDown: "<s-down>",
-	gocui.KeyArrowLeft:      "<left>",
-	gocui.KeyArrowRight:     "<right>",
-	gocui.KeyTab:            "<tab>", // <c-i>
-	gocui.KeyBacktab:        "<backtab>",
-	gocui.KeyEnter:          "<enter>", // <c-m>
-	gocui.KeyAltEnter:       "<a-enter>",
-	gocui.KeyEsc:            "<esc>",       // <c-[>, <c-3>
-	gocui.KeyBackspace:      "<backspace>", // <c-h>
-	gocui.KeySpace:          "<space>",
-	gocui.KeyCtrlA:          "<c-a>",
-	gocui.KeyCtrlB:          "<c-b>",
-	gocui.KeyCtrlC:          "<c-c>",
-	gocui.KeyCtrlD:          "<c-d>",
-	gocui.KeyCtrlE:          "<c-e>",
-	gocui.KeyCtrlF:          "<c-f>",
-	gocui.KeyCtrlG:          "<c-g>",
-	gocui.KeyCtrlJ:          "<c-j>",
-	gocui.KeyCtrlK:          "<c-k>",
-	gocui.KeyCtrlL:          "<c-l>",
-	gocui.KeyCtrlN:          "<c-n>",
-	gocui.KeyCtrlO:          "<c-o>",
-	gocui.KeyCtrlP:          "<c-p>",
-	gocui.KeyCtrlQ:          "<c-q>",
-	gocui.KeyCtrlR:          "<c-r>",
-	gocui.KeyCtrlS:          "<c-s>",
-	gocui.KeyCtrlT:          "<c-t>",
-	gocui.KeyCtrlU:          "<c-u>",
-	gocui.KeyCtrlV:          "<c-v>",
-	gocui.KeyCtrlW:          "<c-w>",
-	gocui.KeyCtrlX:          "<c-x>",
-	gocui.KeyCtrlY:          "<c-y>",
-	gocui.KeyCtrlZ:          "<c-z>",
-	gocui.KeyCtrl8:          "<c-8>",
-	gocui.MouseWheelUp:      "mouse wheel up",
-	gocui.MouseWheelDown:    "mouse wheel down",
+	gocui.KeyF1:          "f1",
+	gocui.KeyF2:          "f2",
+	gocui.KeyF3:          "f3",
+	gocui.KeyF4:          "f4",
+	gocui.KeyF5:          "f5",
+	gocui.KeyF6:          "f6",
+	gocui.KeyF7:          "f7",
+	gocui.KeyF8:          "f8",
+	gocui.KeyF9:          "f9",
+	gocui.KeyF10:         "f10",
+	gocui.KeyF11:         "f11",
+	gocui.KeyF12:         "f12",
+	gocui.KeyInsert:      "insert",
+	gocui.KeyDelete:      "delete",
+	gocui.KeyHome:        "home",
+	gocui.KeyEnd:         "end",
+	gocui.KeyPgup:        "pgup",
+	gocui.KeyPgdn:        "pgdown",
+	gocui.KeyArrowUp:     "up",
+	gocui.KeyArrowDown:   "down",
+	gocui.KeyArrowLeft:   "left",
+	gocui.KeyArrowRight:  "right",
+	gocui.KeyTab:         "tab",
+	gocui.KeyBacktab:     "backtab",
+	gocui.KeyEnter:       "enter",
+	gocui.KeyEsc:         "esc",
+	gocui.KeyBackspace:   "backspace",
+	gocui.MouseWheelUp:   "mouse wheel up",
+	gocui.MouseWheelDown: "mouse wheel down",
 }
 
 var keyByLabel = lo.Invert(labelByKey)
@@ -80,16 +52,40 @@ func LabelForKey(key gocui.Key) string {
 		return ""
 	}
 
+	label := ""
+	if key.Mod()&gocui.ModCtrl != 0 {
+		label += "c-"
+	}
+	if key.Mod()&gocui.ModAlt != 0 {
+		label += "a-"
+	}
+	if key.Mod()&gocui.ModShift != 0 {
+		label += "s-"
+	}
+	if key.Mod()&gocui.ModMeta != 0 {
+		label += "m-"
+	}
+
 	if key.KeyName() == gocui.KeyName(tcell.KeyRune) {
-		return key.Str()
+		if key.Str() == " " {
+			label += "space"
+		} else {
+			label += key.Str()
+		}
+	} else {
+		value, ok := labelByKey[key.KeyName()]
+		if ok {
+			label += value
+		} else {
+			label += "unknown"
+		}
 	}
 
-	value, ok := labelByKey[key.KeyName()]
-	if ok {
-		return value
+	if len(label) > 1 {
+		label = "<" + label + ">"
 	}
 
-	return "unknown"
+	return label
 }
 
 func KeyFromLabel(label string) (gocui.Key, bool) {
@@ -97,16 +93,63 @@ func KeyFromLabel(label string) (gocui.Key, bool) {
 		return gocui.Key{}, true
 	}
 
-	runeCount := utf8.RuneCountInString(label)
-	if runeCount > 1 {
-		keyName, ok := keyByLabel[strings.ToLower(label)]
-		if !ok {
-			return gocui.Key{}, false
-		}
-		return gocui.NewKeyName(keyName), true
+	if strings.HasPrefix(label, "<") && strings.HasSuffix(label, ">") {
+		label = label[1 : len(label)-1]
 	}
 
-	return gocui.NewKeyRune([]rune(label)[0]), true
+	if label == "-" {
+		return gocui.NewKeyRune('-'), true
+	}
+
+	mod := gocui.ModNone
+	for {
+		modStr, remainder, ok := strings.Cut(label, "-")
+		if !ok {
+			break
+		}
+
+		label = remainder
+
+		switch modStr {
+		case "s":
+			if (mod & gocui.ModShift) != 0 {
+				return gocui.Key{}, false
+			}
+			mod |= gocui.ModShift
+		case "c":
+			if (mod & gocui.ModCtrl) != 0 {
+				return gocui.Key{}, false
+			}
+			mod |= gocui.ModCtrl
+		case "a":
+			if (mod & gocui.ModAlt) != 0 {
+				return gocui.Key{}, false
+			}
+			mod |= gocui.ModAlt
+		case "m":
+			if (mod & gocui.ModMeta) != 0 {
+				return gocui.Key{}, false
+			}
+			mod |= gocui.ModMeta
+		default:
+			return gocui.Key{}, false
+		}
+	}
+
+	if label == "space" {
+		return gocui.NewKeyStrMod(" ", mod), true
+	}
+
+	if keyName, ok := keyByLabel[label]; ok {
+		return gocui.NewKey(keyName, "", mod), true
+	}
+
+	runeCount := utf8.RuneCountInString(label)
+	if runeCount != 1 {
+		return gocui.Key{}, false
+	}
+
+	return gocui.NewKeyStrMod(label, mod), true
 }
 
 func isValidKeybindingKey(key string) bool {
