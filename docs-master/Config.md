@@ -249,6 +249,10 @@ gui:
   # If true (default), sort the file tree case-sensitively.
   fileTreeSortCaseSensitive: true
 
+  # Number of spaces to indent each level of the file tree. Default 2. Set to 0 to
+  # disable indentation.
+  fileTreeIndentWidth: 2
+
   # If true, show the number of lines changed per file in the Files view
   showNumstatInFilesView: false
 

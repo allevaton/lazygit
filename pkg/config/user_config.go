@@ -158,6 +158,8 @@ type GuiConfig struct {
 	FileTreeSortOrder string `yaml:"fileTreeSortOrder" jsonschema:"enum=mixed,enum=filesFirst,enum=foldersFirst"`
 	// If true (default), sort the file tree case-sensitively.
 	FileTreeSortCaseSensitive bool `yaml:"fileTreeSortCaseSensitive"`
+	// Number of spaces to indent each level of the file tree. Default 2. Set to 0 to disable indentation.
+	FileTreeIndentWidth int `yaml:"fileTreeIndentWidth" jsonschema:"minimum=0"`
 	// If true, show the number of lines changed per file in the Files view
 	ShowNumstatInFilesView bool `yaml:"showNumstatInFilesView"`
 	// If true, show a random tip in the command log when Lazygit starts
@@ -905,6 +907,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 			ShowRootItemInFileTree:              true,
 			FileTreeSortOrder:                   "mixed",
 			FileTreeSortCaseSensitive:           true,
+			FileTreeIndentWidth:                 2,
 			ShowNumstatInFilesView:              false,
 			ShowRandomTip:                       true,
 			ShowIcons:                           false,
