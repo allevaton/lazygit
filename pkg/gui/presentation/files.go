@@ -28,12 +28,14 @@ func RenderFileTree(
 	customIconsConfig *config.CustomIconsConfig,
 	showRootItem bool,
 	tr *i18n.TranslationSet,
+	indentWidth int,
 ) []string {
 	collapsedPaths := tree.CollapsedPaths()
+	indentUnit := strings.Repeat(" ", indentWidth)
 	return renderAux(tree.GetRoot().Raw(), collapsedPaths, -1, -1, func(node *filetree.Node[models.File], treeDepth int, visualDepth int, isCollapsed bool) string {
 		fileNode := filetree.NewFileNode(node)
 
-		return getFileLine(isCollapsed, fileNode.GetHasUnstagedChanges(), fileNode.GetHasStagedChanges(), treeDepth, visualDepth, showNumstat, showFileIcons, submoduleConfigs, node, customIconsConfig, showRootItem, tr)
+		return getFileLine(isCollapsed, fileNode.GetHasUnstagedChanges(), fileNode.GetHasStagedChanges(), treeDepth, visualDepth, showNumstat, showFileIcons, submoduleConfigs, node, customIconsConfig, showRootItem, tr, indentUnit)
 	})
 }
 
@@ -42,12 +44,14 @@ func RenderCommitFileTree(
 	patchBuilder *patch.PatchBuilder,
 	showFileIcons bool,
 	customIconsConfig *config.CustomIconsConfig,
+	indentWidth int,
 ) []string {
 	collapsedPaths := tree.CollapsedPaths()
+	indentUnit := strings.Repeat(" ", indentWidth)
 	return renderAux(tree.GetRoot().Raw(), collapsedPaths, -1, -1, func(node *filetree.Node[models.CommitFile], treeDepth int, visualDepth int, isCollapsed bool) string {
 		status := commitFilePatchStatus(node, tree, patchBuilder)
 
-		return getCommitFileLine(isCollapsed, treeDepth, visualDepth, node, status, showFileIcons, customIconsConfig)
+		return getCommitFileLine(isCollapsed, treeDepth, visualDepth, node, status, showFileIcons, customIconsConfig, indentUnit)
 	})
 }
 
@@ -124,6 +128,7 @@ func getFileLine(
 	customIconsConfig *config.CustomIconsConfig,
 	showRootItem bool,
 	tr *i18n.TranslationSet,
+	indentUnit string,
 ) string {
 	name := fileNameAtDepth(node, treeDepth, showRootItem)
 	output := ""
@@ -132,7 +137,7 @@ func getFileLine(
 
 	file := node.File
 
-	indentation := strings.Repeat("  ", visualDepth)
+	indentation := strings.Repeat(indentUnit, visualDepth)
 
 	if hasStagedChanges && !hasUnstagedChanges {
 		nameColor = style.FgGreen
@@ -253,8 +258,9 @@ func getCommitFileLine(
 	status patch.PatchStatus,
 	showFileIcons bool,
 	customIconsConfig *config.CustomIconsConfig,
+	indentUnit string,
 ) string {
-	indentation := strings.Repeat("  ", visualDepth)
+	indentation := strings.Repeat(indentUnit, visualDepth)
 	name := commitFileNameAtDepth(node, treeDepth)
 	commitFile := node.File
 	output := indentation

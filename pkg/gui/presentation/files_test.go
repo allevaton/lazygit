@@ -141,7 +141,7 @@ M  file1
 			for _, path := range s.collapsedPaths {
 				viewModel.ToggleCollapsed(path)
 			}
-			result := RenderFileTree(viewModel, nil, false, s.showLineChanges, &config.CustomIconsConfig{}, s.showRootItem, common.Tr)
+			result := RenderFileTree(viewModel, nil, false, s.showLineChanges, &config.CustomIconsConfig{}, s.showRootItem, common.Tr, 2)
 			assert.EqualValues(t, s.expected, result)
 		})
 	}
@@ -251,7 +251,7 @@ M file1
 				nil,
 			)
 			patchBuilder.Start("from", "to", false, false)
-			result := RenderCommitFileTree(viewModel, patchBuilder, false, &config.CustomIconsConfig{})
+			result := RenderCommitFileTree(viewModel, patchBuilder, false, &config.CustomIconsConfig{}, 2)
 			assert.EqualValues(t, s.expected, result)
 		})
 	}
