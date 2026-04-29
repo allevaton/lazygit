@@ -266,6 +266,8 @@ func getMidSectionWeights(args WindowArrangementArgs) (int, int) {
 		if args.ScreenMode == types.SCREEN_HALF {
 			if args.UserConfig.Gui.EnlargedSideViewLocation == "top" {
 				mainSectionWeight = sideSectionWeight * 2
+			} else if args.CurrentSideWindow == "files" {
+				mainSectionWeight = sideSectionWeight * 7 / 3
 			} else {
 				mainSectionWeight = sideSectionWeight
 			}
