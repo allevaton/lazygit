@@ -1,4 +1,5 @@
 # Please do not add personal files
+scripts/sync-fork.sh
 
 # Logs
 *.log
