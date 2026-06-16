@@ -38,6 +38,10 @@ func (config *UserConfig) Validate() error {
 		[]string{"date", "alphabetical"}); err != nil {
 		return err
 	}
+	if err := validateEnum("git.worktreeSortOrder", config.Git.WorktreeSortOrder,
+		[]string{"date", "alphabetical"}); err != nil {
+		return err
+	}
 	if err := validateEnum("git.log.order", config.Git.Log.Order,
 		[]string{"date-order", "author-date-order", "topo-order", "default"}); err != nil {
 		return err

@@ -414,4 +414,5 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` <space> `` | Switch | Switch to the selected worktree. |
 | `` o `` | Openen in editor |  |
 | `` d `` | Verwijderen | Remove the selected worktree. This will both delete the worktree's directory, as well as metadata about the worktree in the .git directory. |
+| `` s `` | Sort order |  |
 | `` / `` | Filter the current view by text |  |

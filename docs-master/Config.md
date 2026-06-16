@@ -533,6 +533,15 @@ git:
   # remote branches panel.
   remoteBranchSortOrder: date
 
+  # How worktrees are sorted in the worktrees view. Sorting is by the
+  # commit date of each worktree's checked-out HEAD, which for a worktree on
+  # a branch is that branch's last commit. The current worktree is always
+  # kept at the top regardless of this setting.
+  # One of: 'date' (default) | 'alphabetical'
+  # Can be changed from within Lazygit with the Sort Order menu (`s`) in the
+  # worktrees panel.
+  worktreeSortOrder: date
+
   # When copying commit hashes to the clipboard, truncate them to this length. Set
   # to 40 to disable truncation.
   truncateCopiedCommitHashesTo: 12

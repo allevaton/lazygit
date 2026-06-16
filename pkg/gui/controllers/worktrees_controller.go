@@ -7,6 +7,7 @@ import (
 	"text/tabwriter"
 
 	"github.com/jesseduffield/lazygit/pkg/commands/models"
+	"github.com/jesseduffield/lazygit/pkg/config"
 	"github.com/jesseduffield/lazygit/pkg/gui/context"
 	"github.com/jesseduffield/lazygit/pkg/gui/style"
 	"github.com/jesseduffield/lazygit/pkg/gui/types"
@@ -72,9 +73,32 @@ func (self *WorktreesController) GetKeybindings(opts types.KeybindingsOpts) []*t
 			Tooltip:           self.c.Tr.RemoveWorktreeTooltip,
 			DisplayOnScreen:   true,
 		},
+		{
+			// Worktrees have no dedicated sort-order keybinding config, so this
+			// is bound directly to 's' to match the branches panel.
+			Keys:        opts.GetKeys(config.Keybinding{"s"}),
+			Handler:     self.createSortMenu,
+			Description: self.c.Tr.SortOrder,
+			OpensMenu:   true,
+		},
 	}
 
 	return bindings
+}
+
+func (self *WorktreesController) createSortMenu() error {
+	return self.c.Helpers().Refs.CreateSortOrderMenu(
+		[]string{"date", "alphabetical"},
+		self.c.Tr.SortOrderPromptWorktrees,
+		func(sortOrder string) error {
+			if self.c.UserConfig().Git.WorktreeSortOrder != sortOrder {
+				self.c.UserConfig().Git.WorktreeSortOrder = sortOrder
+				self.context().SetSelection(0)
+				self.c.Refresh(types.RefreshOptions{Mode: types.ASYNC, Scope: []types.RefreshableView{types.WORKTREES}})
+			}
+			return nil
+		},
+		self.c.UserConfig().Git.WorktreeSortOrder)
 }
 
 func (self *WorktreesController) GetOnRenderToMain() func() {

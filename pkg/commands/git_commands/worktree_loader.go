@@ -1,8 +1,11 @@
 package git_commands
 
 import (
+	"cmp"
 	iofs "io/fs"
 	"path/filepath"
+	"slices"
+	"strconv"
 	"strings"
 	"sync"
 
@@ -103,6 +106,8 @@ func (self *WorktreeLoader) GetWorktrees() ([]*models.Worktree, error) {
 		worktree.Name = names[index]
 	}
 
+	self.sortWorktrees(worktrees)
+
 	// move current worktree to the top
 	for i, worktree := range worktrees {
 		if worktree.IsCurrent {
@@ -141,6 +146,66 @@ func (self *WorktreeLoader) GetWorktrees() ([]*models.Worktree, error) {
 	}
 
 	return worktrees, nil
+}
+
+// sortWorktrees orders worktrees in place according to git.worktreeSortOrder.
+// The current worktree is moved to the top separately by the caller, so it is
+// not special-cased here.
+func (self *WorktreeLoader) sortWorktrees(worktrees []*models.Worktree) {
+	switch self.UserConfig().Git.WorktreeSortOrder {
+	case "alphabetical":
+		slices.SortFunc(worktrees, func(a, b *models.Worktree) int {
+			return strings.Compare(a.Name, b.Name)
+		})
+	case "date":
+		// A worktree's HEAD is the tip of its checked-out branch, so the HEAD's
+		// commit date is that branch's "last updated at". Using HEAD rather than
+		// the branch name also gives a sensible value for detached worktrees.
+		commitDates := self.getHeadCommitDates(worktrees)
+		slices.SortStableFunc(worktrees, func(a, b *models.Worktree) int {
+			// Newest first. Worktrees with no resolvable date (0) sort last.
+			return cmp.Compare(commitDates[b.Head], commitDates[a.Head])
+		})
+	}
+}
+
+// getHeadCommitDates returns a map from a worktree HEAD hash to its committer
+// date (unix seconds). All HEADs are resolved in a single git call. Any HEAD
+// that can't be resolved is simply absent from the map (treated as 0 by
+// callers), so an error here degrades to leaving worktrees in git's order.
+func (self *WorktreeLoader) getHeadCommitDates(worktrees []*models.Worktree) map[string]int64 {
+	hashes := lo.FilterMap(worktrees, func(worktree *models.Worktree, _ int) (string, bool) {
+		return worktree.Head, worktree.Head != ""
+	})
+	if len(hashes) == 0 {
+		return nil
+	}
+
+	cmdArgs := NewGitCmd("show").
+		Arg("--no-patch", "--format=%H %ct").
+		Arg(hashes...).
+		ToArgv()
+
+	output, err := self.cmd.New(cmdArgs).DontLog().RunWithOutput()
+	if err != nil {
+		self.Log.Warnf("Could not get commit dates for worktree sorting: %v", err)
+		return nil
+	}
+
+	result := make(map[string]int64, len(hashes))
+	for _, line := range strings.Split(strings.TrimSpace(output), "\n") {
+		hash, dateStr, ok := strings.Cut(line, " ")
+		if !ok {
+			continue
+		}
+		date, err := strconv.ParseInt(dateStr, 10, 64)
+		if err != nil {
+			continue
+		}
+		result[hash] = date
+	}
+
+	return result
 }
 
 func (self *WorktreeLoader) pathExists(path string) bool {

@@ -821,6 +821,7 @@ type TranslationSet struct {
 	SortOrder                                string
 	SortOrderPromptLocalBranches             string
 	SortOrderPromptRemoteBranches            string
+	SortOrderPromptWorktrees                 string
 	SortAlphabetical                         string
 	SortByDate                               string
 	SortByRecency                            string
@@ -1975,6 +1976,7 @@ func EnglishTranslationSet() *TranslationSet {
 		SortOrder:                                "Sort order",
 		SortOrderPromptLocalBranches:             "The default sort order for local branches can be set in the config file with the key 'git.localBranchSortOrder'.",
 		SortOrderPromptRemoteBranches:            "The default sort order for remote branches can be set in the config file with the key 'git.remoteBranchSortOrder'.",
+		SortOrderPromptWorktrees:                 "The default sort order for worktrees can be set in the config file with the key 'git.worktreeSortOrder'.",
 		SortAlphabetical:                         "Alphabetical",
 		SortByDate:                               "Date",
 		SortByRecency:                            "Recency",

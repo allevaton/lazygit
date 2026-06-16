@@ -110,6 +110,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` <space> `` | Przełącz | Przełącz do wybranego drzewa pracy. |
 | `` o `` | Otwórz w edytorze |  |
 | `` d `` | Usuń | Usuń wybrane drzewo pracy. To usunie zarówno katalog drzewa pracy, jak i metadane o drzewie pracy w katalogu .git. |
+| `` s `` | Kolejność sortowania |  |
 | `` / `` | Filtruj bieżący widok po tekście |  |
 
 ## Dziennik reflog

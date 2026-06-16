@@ -67,6 +67,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` <space> `` | Switch | Switch to the selected worktree. |
 | `` o `` | Open in editor |  |
 | `` d `` | Remove | Remove the selected worktree. This will both delete the worktree's directory, as well as metadata about the worktree in the .git directory. |
+| `` s `` | Порядок сортировки |  |
 | `` / `` | Filter the current view by text |  |
 
 ## Вторичный

@@ -36,6 +36,8 @@ branch refs/heads/mybranch
 
 				gitArgsMainWorktree := append(append([]string{"-C", "/path/to/repo"}, getRevParseArgs()...), "--absolute-git-dir")
 				runner.ExpectGitArgs(gitArgsMainWorktree, "/path/to/repo/.git", nil)
+				runner.ExpectGitArgs([]string{"show", "--no-patch", "--format=%H %ct", "d85cc9d281fa6ae1665c68365fc70e75e82a042d"},
+					"d85cc9d281fa6ae1665c68365fc70e75e82a042d 1700000000", nil)
 				_ = fs.MkdirAll("/path/to/repo/.git", 0o755)
 			},
 			expectedWorktrees: []*models.Worktree{
@@ -73,6 +75,8 @@ branch refs/heads/mybranch-worktree
 				runner.ExpectGitArgs(gitArgsMainWorktree, "/path/to/repo/.git", nil)
 				gitArgsLinkedWorktree := append(append([]string{"-C", "/path/to/repo-worktree"}, getRevParseArgs()...), "--absolute-git-dir")
 				runner.ExpectGitArgs(gitArgsLinkedWorktree, "/path/to/repo/.git/worktrees/repo-worktree", nil)
+				runner.ExpectGitArgs([]string{"show", "--no-patch", "--format=%H %ct", "d85cc9d281fa6ae1665c68365fc70e75e82a042d", "775955775e79b8f5b4c4b56f82fbf657e2d5e4de"},
+					"d85cc9d281fa6ae1665c68365fc70e75e82a042d 1700000000\n775955775e79b8f5b4c4b56f82fbf657e2d5e4de 1700000001", nil)
 
 				_ = fs.MkdirAll("/path/to/repo/.git", 0o755)
 				_ = fs.MkdirAll("/path/to/repo-worktree", 0o755)
@@ -116,6 +120,8 @@ HEAD 775955775e79b8f5b4c4b56f82fbf657e2d5e4de
 branch refs/heads/missingbranch
 `,
 					nil)
+				runner.ExpectGitArgs([]string{"show", "--no-patch", "--format=%H %ct", "775955775e79b8f5b4c4b56f82fbf657e2d5e4de"},
+					"775955775e79b8f5b4c4b56f82fbf657e2d5e4de 1700000000", nil)
 
 				_ = fs.MkdirAll("/path/to/repo/.git", 0o755)
 			},
@@ -154,6 +160,8 @@ branch refs/heads/mybranch-worktree
 				runner.ExpectGitArgs(gitArgsMainWorktree, "/path/to/repo/.git", nil)
 				gitArgsLinkedWorktree := append(append([]string{"-C", "/path/to/repo-worktree"}, getRevParseArgs()...), "--absolute-git-dir")
 				runner.ExpectGitArgs(gitArgsLinkedWorktree, "/path/to/repo/.git/worktrees/repo-worktree", nil)
+				runner.ExpectGitArgs([]string{"show", "--no-patch", "--format=%H %ct", "d85cc9d281fa6ae1665c68365fc70e75e82a042d", "775955775e79b8f5b4c4b56f82fbf657e2d5e4de"},
+					"d85cc9d281fa6ae1665c68365fc70e75e82a042d 1700000000\n775955775e79b8f5b4c4b56f82fbf657e2d5e4de 1700000001", nil)
 
 				_ = fs.MkdirAll("/path/to/repo/.git", 0o755)
 				_ = fs.MkdirAll("/path/to/repo-worktree", 0o755)
@@ -205,6 +213,8 @@ detached
 				runner.ExpectGitArgs(gitArgsMainWorktree, "/path/to/repo/.git", nil)
 				gitArgsLinkedWorktree := append(append([]string{"-C", "/path/to/repo-worktree"}, getRevParseArgs()...), "--absolute-git-dir")
 				runner.ExpectGitArgs(gitArgsLinkedWorktree, "/path/to/repo/.git/worktrees/repo-worktree", nil)
+				runner.ExpectGitArgs([]string{"show", "--no-patch", "--format=%H %ct", "d85cc9d281fa6ae1665c68365fc70e75e82a042d", "775955775e79b8f5b4c4b56f82fbf657e2d5e4de"},
+					"d85cc9d281fa6ae1665c68365fc70e75e82a042d 1700000000\n775955775e79b8f5b4c4b56f82fbf657e2d5e4de 1700000001", nil)
 
 				_ = fs.MkdirAll("/path/to/repo/.git", 0o755)
 				_ = fs.MkdirAll("/path/to/repo-worktree", 0o755)
@@ -230,6 +240,79 @@ detached
 					Branch:        "",
 					Head:          "775955775e79b8f5b4c4b56f82fbf657e2d5e4de",
 					Name:          "repo-worktree",
+				},
+			},
+			expectedErr: "",
+		},
+		{
+			// Two non-current linked worktrees so the date sort actually
+			// reorders: "newer" is listed after "older" by git, but must sort
+			// ahead of it. The current (main) worktree stays pinned at the top.
+			testName: "Sort by date orders non-current worktrees newest-first",
+			repoPaths: &RepoPaths{
+				repoPath:     "/path/to/repo",
+				worktreePath: "/path/to/repo",
+			},
+			before: func(runner *oscommands.FakeCmdObjRunner, fs afero.Fs, getRevParseArgs argFn) {
+				runner.ExpectGitArgs([]string{"worktree", "list", "--porcelain"},
+					`worktree /path/to/repo
+HEAD aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+branch refs/heads/main
+
+worktree /path/to/repo-older
+HEAD bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+branch refs/heads/older
+
+worktree /path/to/repo-newer
+HEAD cccccccccccccccccccccccccccccccccccccccc
+branch refs/heads/newer
+`,
+					nil)
+
+				mainArgs := append(append([]string{"-C", "/path/to/repo"}, getRevParseArgs()...), "--absolute-git-dir")
+				runner.ExpectGitArgs(mainArgs, "/path/to/repo/.git", nil)
+				olderArgs := append(append([]string{"-C", "/path/to/repo-older"}, getRevParseArgs()...), "--absolute-git-dir")
+				runner.ExpectGitArgs(olderArgs, "/path/to/repo/.git/worktrees/repo-older", nil)
+				newerArgs := append(append([]string{"-C", "/path/to/repo-newer"}, getRevParseArgs()...), "--absolute-git-dir")
+				runner.ExpectGitArgs(newerArgs, "/path/to/repo/.git/worktrees/repo-newer", nil)
+
+				runner.ExpectGitArgs([]string{
+					"show", "--no-patch", "--format=%H %ct",
+					"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+					"bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+					"cccccccccccccccccccccccccccccccccccccccc",
+				},
+					`aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa 2000
+bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb 1000
+cccccccccccccccccccccccccccccccccccccccc 3000`, nil)
+
+				_ = fs.MkdirAll("/path/to/repo/.git", 0o755)
+				_ = fs.MkdirAll("/path/to/repo-older", 0o755)
+				_ = fs.MkdirAll("/path/to/repo-newer", 0o755)
+			},
+			expectedWorktrees: []*models.Worktree{
+				{
+					IsMain:    true,
+					IsCurrent: true,
+					Path:      "/path/to/repo",
+					GitDir:    "/path/to/repo/.git",
+					Branch:    "main",
+					Head:      "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+					Name:      "repo",
+				},
+				{
+					Path:   "/path/to/repo-newer",
+					GitDir: "/path/to/repo/.git/worktrees/repo-newer",
+					Branch: "newer",
+					Head:   "cccccccccccccccccccccccccccccccccccccccc",
+					Name:   "repo-newer",
+				},
+				{
+					Path:   "/path/to/repo-older",
+					GitDir: "/path/to/repo/.git/worktrees/repo-older",
+					Branch: "older",
+					Head:   "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+					Name:   "repo-older",
 				},
 			},
 			expectedErr: "",

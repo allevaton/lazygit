@@ -358,6 +358,13 @@ type GitConfig struct {
 	// One of: 'date' (default) | 'alphabetical'
 	// Can be changed from within Lazygit with the Sort Order menu (`s`) in the remote branches panel.
 	RemoteBranchSortOrder string `yaml:"remoteBranchSortOrder" jsonschema:"enum=date,enum=alphabetical"`
+	// How worktrees are sorted in the worktrees view. Sorting is by the
+	// commit date of each worktree's checked-out HEAD, which for a worktree on
+	// a branch is that branch's last commit. The current worktree is always
+	// kept at the top regardless of this setting.
+	// One of: 'date' (default) | 'alphabetical'
+	// Can be changed from within Lazygit with the Sort Order menu (`s`) in the worktrees panel.
+	WorktreeSortOrder string `yaml:"worktreeSortOrder" jsonschema:"enum=date,enum=alphabetical"`
 	// When copying commit hashes to the clipboard, truncate them to this length. Set to 40 to disable truncation.
 	TruncateCopiedCommitHashesTo int `yaml:"truncateCopiedCommitHashesTo"`
 }
@@ -956,6 +963,7 @@ func GetDefaultConfigForPlatform(platform string) *UserConfig {
 			},
 			LocalBranchSortOrder:         "date",
 			RemoteBranchSortOrder:        "date",
+			WorktreeSortOrder:            "date",
 			SkipHookPrefix:               "WIP",
 			MainBranches:                 []string{"master", "main"},
 			AutoFetch:                    true,

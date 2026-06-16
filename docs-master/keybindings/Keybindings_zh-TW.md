@@ -173,6 +173,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` <space> `` | Switch | Switch to the selected worktree. |
 | `` o `` | 在編輯器中開啟 |  |
 | `` d `` | Remove | Remove the selected worktree. This will both delete the worktree's directory, as well as metadata about the worktree in the .git directory. |
+| `` s `` | 排序規則 |  |
 | `` / `` | 搜尋 |  |
 
 ## 提交

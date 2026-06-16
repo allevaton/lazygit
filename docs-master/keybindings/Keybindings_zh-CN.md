@@ -94,6 +94,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` <space> `` | 切换 | 切换到选中的工作树 |
 | `` o `` | 在编辑器中编写 |  |
 | `` d `` | 删除 | 删除选定的工作树。这将删除工作树的目录以及 .git 目录中有关工作树的元数据。 |
+| `` s `` | 排序 |  |
 | `` / `` | 通过文本过滤当前视图 |  |
 
 ## 引用日志
