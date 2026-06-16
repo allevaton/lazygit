@@ -146,6 +146,7 @@ _This file is auto-generated. To update, make the changes in the pkg/i18n direct
 | `` <space> `` | 切換 | 切換到選中的工作樹。 |
 | `` o `` | 在編輯器中開啟 |  |
 | `` d `` | 刪除 | 刪除選定的工作樹。這將刪除工作樹的目錄以及 .git 目錄中有關工作樹的後設資料。 |
+| `` s `` | 排序規則 |  |
 | `` / `` | 搜尋 |  |
 
 ## 提交
