@@ -94,7 +94,7 @@ func (self *WorktreesController) createSortMenu() error {
 			if self.c.UserConfig().Git.WorktreeSortOrder != sortOrder {
 				self.c.UserConfig().Git.WorktreeSortOrder = sortOrder
 				self.context().SetSelection(0)
-				self.c.Refresh(types.RefreshOptions{Mode: types.ASYNC, Scope: []types.RefreshableView{types.WORKTREES}})
+				self.c.Refresh(types.RefreshOptions{Scope: []types.RefreshableView{types.WORKTREES}})
 			}
 			return nil
 		},
